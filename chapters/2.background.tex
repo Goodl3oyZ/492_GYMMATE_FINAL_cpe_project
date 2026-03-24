@@ -202,3 +202,31 @@ Cosine Similarity เป็น metric ทางคณิตศาสตร์ท
   \item \textbf{API Documentation} — Swagger UI สร้างจากไฟล์ \texttt{openapi.yaml} deploy ที่ port 8081 ใช้เป็นสื่อกลาง API specification ระหว่าง Backend กับทีม Frontend/Mobile
   \item \textbf{Infrastructure} — Docker + Docker Compose สำหรับ containerize application ทุกส่วน; Proxmox VE (Type 1 Hypervisor) สำหรับแบ่ง Virtual Machine; Tailscale (WireGuard-based VPN) สำหรับเชื่อมต่อ dev machine ทั้ง 3 เครื่องกับ server; Cloudflare Tunnel สำหรับ expose ระบบสู่ internet ที่ domain \texttt{gymmate.site} และ \texttt{api.gymmate.site}; Dozzle สำหรับ real-time container log viewer
 \end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{ตัวอย่างหน้า Jira Sprint Board สำหรับจัดการงานของทีม GymMate}
+  \label{fig:jira}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{Swagger UI แสดง API documentation แบบ interactive ของระบบ GymMate}
+  \label{fig:swagger}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{Proxmox VE dashboard แสดง Virtual Machine ของระบบ GymMate}
+  \label{fig:proxmox}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{Dozzle real-time container log viewer สำหรับ monitoring ระบบ GymMate}
+  \label{fig:dozzle}
+\end{figure}

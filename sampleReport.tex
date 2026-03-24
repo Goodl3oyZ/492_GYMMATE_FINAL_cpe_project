@@ -22,7 +22,8 @@
 
 %% Some possible packages to include:
 \usepackage[final]{graphicx} % for including graphics
-\usepackage{booktabs} 
+\usepackage{booktabs}
+\usepackage{amsmath}
 %% Add bookmarks and hyperlinks in the document.
 \PassOptionsToPackage{hyphens}{url}
 \usepackage[colorlinks=true,allcolors=Blue4,citecolor=red,linktoc=all]{hyperref}
@@ -81,15 +82,16 @@
 \include{chapters/2.background}
 \include{chapters/3.approach}
 \include{chapters/4.eval}
+\include{chapters/5.conclusion}
+
 \ifproject
 \fi
-% บรรณานุกรม อยู่นี่น้าคับ
-% พิมทุกรายการใน SampleReport.bib
-% \nocite{*} 
-% \bibliography{sampleReport}
+% บรรณานุกรม
+\nocite{*}
+\bibliography{sampleReport}
 
 % ภาคผนวกยังไม่ต้องมี
-% \ifproject
+\ifproject
 % \normalspacing
 % \appendix
 % \include{chapters/appendix}

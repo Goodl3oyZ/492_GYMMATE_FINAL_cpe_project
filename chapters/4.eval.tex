@@ -56,6 +56,20 @@ test ทั้งหมดถูกรันอัตโนมัติใน \t
 
 หาก test ใดล้มเหลว CI pipeline จะหยุดทำงานและ block การ merge code เข้า main branch ทำให้มั่นใจได้ว่า business logic ที่ deploy ขึ้น production ผ่านการตรวจสอบแล้วทุกครั้ง
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{โครงสร้างไฟล์ Unit Test ใน Feature Module แสดง usecase.go, mock\_test.go และ usecase\_test.go}
+  \label{fig:test-structure}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{ผลการรัน CI Pipeline ผ่าน GitHub Actions แสดงสถานะ test ผ่านทุก module}
+  \label{fig:ci-result}
+\end{figure}
+
 %================ Section 4.2: Usability Testing ==================
 \section{การทดสอบการใช้งานจริง (Usability Testing / UAT)}
 \label{sec:uat}
@@ -86,6 +100,27 @@ test ทั้งหมดถูกรันอัตโนมัติใน \t
 จากการเก็บข้อมูลผู้ทดสอบ 11 คน ผลการประเมินในภาพรวมแสดงให้เห็นว่า ผู้ทดสอบส่วนใหญ่พึงพอใจกับการออกแบบ UI/UX และมองว่าแอปใช้งานง่าย ฟีเจอร์ตอบโจทย์ความต้องการ และมีแนวโน้มจะใช้งานต่อในอนาคต
 
 นอกจากนี้ในระหว่างการทดสอบ พบ bug 1 รายการ ได้แก่ การลืมใส่ Role middleware ที่ endpoint หนึ่ง ซึ่งได้รับการแก้ไขเรียบร้อยแล้ว
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{ผลการประเมินความง่ายในการใช้งาน (Ease of Use) จากผู้ทดสอบ 11 คน}
+  \label{fig:uat-ease}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{ผลการประเมินความพึงพอใจโดยรวมและความน่าจะเป็นในการใช้งานต่อ}
+  \label{fig:uat-satisfaction}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.80\linewidth]{chapters/images/floppa.png}
+  \caption{ผลการประเมินความรู้สึกต่อดีไซน์และ UI/UX ของแอป GymMate}
+  \label{fig:uat-design}
+\end{figure}
 
 %================ Section 4.3: Objective Evaluation ==================
 \section{การประเมินผลตามวัตถุประสงค์ของโครงการ}
