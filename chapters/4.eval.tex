@@ -1,67 +1,118 @@
-\chapter{\ifenglish System Evaluation\else การประเมินระบบ\fi}
+%================ Chapter ==================
+\chapter{\ifenglish System Testing and Evaluation\else การทดสอบระบบ\fi}
+\label{chap:eval}
 
-\section{การทำงานของระบบ}
+%================ Section 4.1: Unit Testing ==================
+\section{Unit Testing}
+\label{sec:unit-testing}
 
-การประเมินระบบ \textit{GymMate} ได้ออกแบบเพื่อสะท้อนความสามารถของระบบซอฟต์แวร์ ทั้งด้านความถูกต้อง ประสิทธิภาพ และประสบการณ์ผู้ใช้ โดยอ้างอิงเกณฑ์มาตรฐานด้านวิศวกรรมซอฟต์แวร์ที่สำคัญ ได้แก่ {ความถูกต้อง (Correctness)} {ความเสถียร (Reliability)} {ความปลอดภัย (Security)} และ {ความง่ายต่อการใช้งาน (Usability)}
+\noindent
+Unit Testing คือการทดสอบหน่วยย่อยที่สุดของโปรแกรมแบบแยกส่วน โดยแต่ละ test case ตรวจสอบว่า function หรือ method หนึ่งทำงานถูกต้องตาม specification ที่กำหนดไว้ภายใต้เงื่อนไขต่างๆ โดยไม่พึ่งพา component ภายนอก เช่น database หรือ network \cite{pressman2019}
 
-\subsection{สิทธิ์และการเข้าถึง (Permission \& Access Control Test)}
-เพื่อให้มั่นใจว่าการเข้าถึงข้อมูลและฟังก์ชันต่าง ๆ เป็นไปตามสิทธิ์ที่กำหนด ได้มีการออกแบบ \textit{Test Matrix} สำหรับระบบปฏิบัติการและเวอร์ชันที่หลากหลาย ตัวอย่างเช่น
+GymMate เขียน unit test สำหรับ \textbf{Usecase Layer} ซึ่งเป็นชั้นที่บรรจุ business logic หลักของระบบ การที่ทดสอบได้โดยไม่ต้องพึ่ง database จริงเป็นผลโดยตรงจากการออกแบบตาม Clean Architecture ที่ Usecase Layer เข้าถึงข้อมูลผ่าน Repository interface เท่านั้น ทำให้สามารถแทนที่ด้วย mock object ระหว่างการทดสอบได้
+
+\subsection{โครงสร้างของ Test}
+
+แต่ละ feature module ภายใต้ \texttt{feature/\{feature\_name\}/usecase/} ประกอบด้วยไฟล์ 3 ไฟล์
+
 \begin{itemize}
-  \item การติดตั้งครั้งแรก (First Install)
-  \item การปฏิเสธสิทธิ์การเข้าถึงกล้องหรือการแจ้งเตือน
-  \item การเปลี่ยนแปลงสิทธิ์ระหว่างการใช้งาน (Runtime Permission Change)
-  \item ความยินยอมในการประมวลผลข้อมูลสุขภาพ (Health Consent)
-\end{itemize}
-การประเมินนี้ทำให้มั่นใจได้ว่าระบบสามารถทำงานได้ถูกต้องและปลอดภัยภายใต้เงื่อนไขสิทธิ์ที่แตกต่างกัน
-
-\subsection{ความถูกต้องของการส่งข้อมูล (Data Transmission Accuracy)}
-เพื่อรับรองความถูกต้องของข้อมูลที่ถูกส่งจากผู้ใช้ไปยังระบบ ได้มีการออกแบบการประเมินในประเด็นสำคัญ ได้แก่
-\begin{itemize}
-  \item \textbf{Completeness \& No-Loss:} ข้อมูลที่ส่งต้องครบถ้วนและไม่สูญหาย
-  \item \textbf{Idempotency:} การส่งข้อมูลซ้ำจากการ Retry ไม่ควรสร้างข้อมูลซ้ำในฐานข้อมูล
-  \item \textbf{Data Validation:} ตรวจสอบให้ตรงตาม Schema และ Constraints เช่น ค่า Reps, Weight, RPE ต้องเป็นไปตามโดเมนที่กำหนด
-  \item \textbf{Event-driven Architecture:} เมื่อเกิดเหตุการณ์ (เช่น \textit{Workout Logged}) ต้องมีหลายบริการ (Consumer) ประมวลผลได้สำเร็จ เช่น \textit{Analytics, Gamification, Notification}
+  \item \textbf{\texttt{usecase.go}} — implement business logic จริงของ feature รับ Repository interface ผ่าน constructor (Dependency Injection)
+  \item \textbf{\texttt{mock\_test.go}} — สร้าง mock struct ที่ implement Repository interface เดียวกัน แต่ไม่ติดต่อ database จริง กำหนดพฤติกรรมได้ในแต่ละ test case
+  \item \textbf{\texttt{usecase\_test.go}} — เขียน test case โดยสร้าง usecase instance ที่รับ mock repository แทน repository จริง แล้วตรวจสอบผลลัพธ์ที่ได้
 \end{itemize}
 
-\subsection{ประสิทธิภาพระบบ (System Performance)}
+\subsection{หลักการทดสอบ (Arrange-Act-Assert)}
+
+test case แต่ละตัวออกแบบตามโครงสร้าง \textbf{Arrange-Act-Assert}
+
+\begin{enumerate}
+  \item \textbf{Arrange} — กำหนดพฤติกรรมของ mock และสร้าง input data
+  \item \textbf{Act} — เรียก function ที่ต้องการทดสอบด้วย input ที่เตรียมไว้
+  \item \textbf{Assert} — ตรวจสอบว่า output และ error ที่ได้ตรงตาม expected result
+\end{enumerate}
+
+แต่ละ function ทดสอบหลาย scenario ครอบคลุมทั้ง happy path และ error path
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Scenario} & \textbf{ตัวอย่าง (Equipment Usecase)} \\
+\midrule
+Happy path        & GetEquipment คืน equipment ที่ถูกต้องเมื่อ ID มีอยู่ \\
+Not found         & GetEquipment คืน error เมื่อ ID ไม่มีในระบบ \\
+Duplicate         & CreateEquipment คืน error เมื่อชื่อซ้ำ \\
+Invalid input     & CreateEquipment คืน error เมื่อ input ไม่ผ่าน validation \\
+Repository error  & คืน error ที่เหมาะสมเมื่อ database มีปัญหา \\
+\bottomrule
+\end{tabular}
+\caption{ตัวอย่าง Test Scenarios ในระบบ GymMate}
+\label{tab:test-scenarios}
+\end{table}
+
+\subsection{การรัน Test และ CI/CD}
+
+test ทั้งหมดถูกรันอัตโนมัติใน \textbf{CI pipeline ผ่าน GitHub Actions} ทุกครั้งที่มีการ push code ไปยัง repository โดยใช้คำสั่ง \texttt{go test ./...}
+
+หาก test ใดล้มเหลว CI pipeline จะหยุดทำงานและ block การ merge code เข้า main branch ทำให้มั่นใจได้ว่า business logic ที่ deploy ขึ้น production ผ่านการตรวจสอบแล้วทุกครั้ง
+
+%================ Section 4.2: Usability Testing ==================
+\section{การทดสอบการใช้งานจริง (Usability Testing / UAT)}
+\label{sec:uat}
+
+\noindent
+การทดสอบนี้มีวัตถุประสงค์เพื่อประเมินประสบการณ์ผู้ใช้งาน (User Experience) และความง่ายในการใช้งานของระบบ
+
+\subsection{กลุ่มผู้ทดสอบและรูปแบบการเก็บข้อมูล}
+
 \begin{itemize}
-  \item วัด Latency และ Throughput ของ API ที่สำคัญ (เช่น \texttt{POST /workouts/logs})
-  \item วัด Consumer Lag ของ Message Queue
-  \item ใช้เกณฑ์อ้างอิง เช่น ค่า Latency p90 ต้องไม่เกิน 200\,ms ภายใต้โหลดปกติ
+  \item กลุ่มผู้ทดสอบ: นักศึกษาที่ใช้งานฟิตเนสและผู้ใช้งานทั่วไป จำนวน 11 คน
+  \item รูปแบบการเก็บข้อมูล: แบบสอบถาม (Google Form) และการสังเกตพฤติกรรมผู้ใช้งาน
 \end{itemize}
 
-\subsection{ประสบการณ์ผู้ใช้ (User Experience)}
+\subsection{หัวข้อการประเมิน}
+
 \begin{itemize}
-  \item ความง่ายในการนำทาง (Navigation)
-  \item ความชัดเจนของข้อความแจ้งเตือนและการขอสิทธิ์
-  \item ความเหมาะสมของอินเทอร์เฟซในสถานการณ์จริง
-  \item ความมั่นใจในการใช้งานระบบ
+  \item ความง่ายในการใช้งาน (Ease of Use)
+  \item ความเข้าใจของ UI
+  \item ความสะดวกในการวางแผนการออกกำลังกาย
+  \item ความพึงพอใจโดยรวม
+  \item ความน่าจะเป็นในการใช้งานต่อ
+  \item ความรู้สึกต่อดีไซน์ของแอป
 \end{itemize}
 
-\section{สิ่งที่คาดหวังในอนาคต (Future Expectations)}
+\subsection{ผลการทดสอบ}
 
-\subsection{การปรับปรุงระบบ Flex Substitute}
-\begin{itemize}
-  \item ปรับปรุงอัลกอริทึมให้สามารถแนะนำท่าทางทดแทนได้แม่นยำขึ้น โดยอิงทั้ง \textit{กล้ามเนื้อหลัก กล้ามเนื้อรอง และระดับความยาก}
-  \item พัฒนาให้รองรับ \textit{การปรับตามบุคคล (Personalization)} เช่น อิงจากประวัติการฝึก ความชอบ หรืออุปกรณ์ที่มีอยู่จริงในยิม
-\end{itemize}
+จากการเก็บข้อมูลผู้ทดสอบ 11 คน ผลการประเมินในภาพรวมแสดงให้เห็นว่า ผู้ทดสอบส่วนใหญ่พึงพอใจกับการออกแบบ UI/UX และมองว่าแอปใช้งานง่าย ฟีเจอร์ตอบโจทย์ความต้องการ และมีแนวโน้มจะใช้งานต่อในอนาคต
 
-\subsection{การยกระดับระบบ Gamification}
-\begin{itemize}
-  \item ปัจจุบันรองรับเพียง \textit{Badge, Streak และ Leaderboard}
-  \item คาดหวังว่าจะพัฒนาไปสู่ \textit{Challenge ระหว่างผู้ใช้ (Individual Challenge)} และ \textit{กิจกรรมกลุ่มภายในยิม (Group Challenge)} เพื่อสร้างแรงจูงใจและเพิ่มการมีส่วนร่วมของผู้ใช้
-\end{itemize}
+นอกจากนี้ในระหว่างการทดสอบ พบ bug 1 รายการ ได้แก่ การลืมใส่ Role middleware ที่ endpoint หนึ่ง ซึ่งได้รับการแก้ไขเรียบร้อยแล้ว
 
-\subsection{การพัฒนา CMS Dashboard สำหรับผู้ดูแล (Admin Panel)}
-\begin{itemize}
-  \item เพิ่มฟีเจอร์ \textit{Machine Management} โดยแสดงข้อมูลเครื่องเล่นผ่าน \textit{Floor Plan} แบบ Interactive
-  \item คาดหวังว่าในอนาคต ผู้ดูแลสามารถ \textit{ย้ายตำแหน่งเครื่องเล่นใน Floor Plan เสมือนจริง} เพื่อสะท้อนการเปลี่ยนแปลงจริงของพื้นที่ยิม
-  \item รองรับการจัดการสถานะเครื่องเล่น เช่น พร้อมใช้งาน/ อยู่ระหว่างซ่อมบำรุง เพื่อให้การบริหารจัดการเป็นระบบมากขึ้น
-\end{itemize}
+%================ Section 4.3: Objective Evaluation ==================
+\section{การประเมินผลตามวัตถุประสงค์ของโครงการ}
+\label{sec:objective-eval}
 
-\subsection{การปรับปรุงประสบการณ์ผู้ใช้ (User Experience Enhancements)}
-\begin{itemize}
-  \item เพิ่ม \textit{Onboarding Tutorial} สำหรับผู้ใช้ใหม่ เพื่อช่วยให้เข้าใจการทำงานของระบบได้รวดเร็วขึ้น
-  \item เพิ่ม \textit{Feedback Mechanism} เช่น ปุ่มรายงานปัญหา หรือช่องทางเสนอแนะในแอปพลิเคชัน
+\noindent
+จากวัตถุประสงค์ของโครงงานที่ตั้งไว้ในบทที่ 1 สามารถประเมินผลได้ดังตาราง \ref{tab:objective-eval}
 
-\end{itemize}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}p{5.5cm}p{7.5cm}@{}}
+\toprule
+\textbf{วัตถุประสงค์} & \textbf{ผลลัพธ์} \\
+\midrule
+พัฒนาระบบวางแผนการออกกำลังกาย (Workout Program Planner) &
+  สามารถสร้างและใช้งานโปรแกรมทั้ง Preset Plan และ Custom Plan ได้จริง ผู้ใช้สามารถเลือก Goal \& Approach และดำเนินการออกกำลังกายตามปฏิทินได้ \\
+\addlinespace
+เพิ่มประสิทธิภาพด้วยระบบ Flex Substitute &
+  ระบบสามารถแนะนำท่าทดแทนโดยใช้ Cosine Similarity เมื่ออุปกรณ์ไม่ว่างหรือผู้ใช้ต้องการเปลี่ยนท่า \\
+\addlinespace
+จัดการฟิตเนสผ่าน CMS Dashboard &
+  Admin สามารถจัดการข้อมูลเครื่อง Floorplan Program และผู้ใช้ได้ผ่าน Web CMS \\
+\addlinespace
+สร้างแรงจูงใจในการออกกำลังกาย &
+  ระบบ Gamification (XP, Badge, Streak, Leaderboard) ช่วยเพิ่ม engagement และการใช้งานอย่างต่อเนื่อง \\
+\bottomrule
+\end{tabular}
+\caption{ผลการประเมินตามวัตถุประสงค์ของโครงงาน GymMate}
+\label{tab:objective-eval}
+\end{table}

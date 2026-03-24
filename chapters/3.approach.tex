@@ -1,115 +1,311 @@
-\chapter{\ifproject%
-\ifenglish Project Structure and Methodology\else โครงสร้างและขั้นตอนการทำงาน\fi
-\else%
-\ifenglish Project Structure\else โครงสร้างของโครงงาน\fi
-\fi
-}
+%================ Chapter ==================
+\chapter{\ifenglish System Design and Development\else การออกแบบและพัฒนาระบบ\fi}
+\label{chap:approach}
 
-ในบทนี้จะกล่าวถึงหลักการ และการออกแบบระบบ
+%================ Section 3.1: System Architecture ==================
+\section{ภาพรวมสถาปัตยกรรมระบบ (3-Tier Architecture \& Infrastructure)}
+\label{sec:system-arch}
 
-\makeatletter
+\noindent
+ระบบ GymMate ถูกออกแบบโดยใช้แนวคิด \textbf{3-Tier Architecture} เพื่อแยกหน้าที่ของระบบออกเป็นส่วนต่างๆ อย่างชัดเจน ได้แก่
 
-% \renewcommand\section{\@startsection {section}{1}{\z@}%
-%                                    {13.5ex \@plus -1ex \@minus -.2ex}%
-%                                    {2.3ex \@plus.2ex}%
-%                                    {\normalfont\large\bfseries}}
-
-\makeatother
-%\vspace{2ex}
-% \titleformat{\section}{\normalfont\bfseries}{\thesection}{1em}{}
-% \titlespacing*{\section}{0pt}{10ex}{0pt}
-
-\section{โครงสร้างและขั้นตอนการพัฒนา}
-\label{sec:development-structure}
-
-\subsection{การวิจัยผู้ใช้และวิเคราะห์ปัญหา (User Research \& Problem Analysis)}
-\label{subsec:user-research}
-
-ในขั้นตอนนี้จะมุ่งเน้นการทำความเข้าใจผู้ใช้และปัญหาที่แท้จริงผ่านวิธีการต่างๆ เช่น
 \begin{itemize}
-    \item การสัมภาษณ์ผู้มีส่วนได้ส่วนเสีย (Stakeholder Interviews)
-    \item การสังเกตการณ์และการศึกษาพฤติกรรมผู้ใช้ (User Observation \& Behavior Study)
-    \item การวิเคราะห์คู่แข่งและตลาด (Competitor \& Market Analysis)
-    \item การระบุ pain points และความต้องการที่แท้จริง (Pain Points \& Real Needs Identification)
+  \item \textbf{Presentation Layer (Client Layer):}
+    ประกอบด้วย Mobile Application (React Native + Expo) สำหรับผู้ใช้บริการฟิตเนส และ Web Application (Vite + React) สำหรับผู้ดูแลระบบ (Admin/Trainer) ทำหน้าที่เป็นส่วนติดต่อผู้ใช้และสื่อสารกับ Backend ผ่าน REST API
+  \item \textbf{Application Layer (Backend):}
+    พัฒนาด้วยภาษา \textbf{Go 1.24.2} + Gin Framework ออกแบบตามหลัก Clean Architecture ทำหน้าที่ประมวลผล business logic เช่น Workout Planner, Flex Substitute Algorithm และ Gamification
+  \item \textbf{Data Layer:}
+    ใช้ \textbf{PostgreSQL 18.2} เป็นฐานข้อมูลหลัก, \textbf{MinIO} สำหรับ object storage (รูปภาพ/วิดีโอ) และ \textbf{Redis 7} สำหรับ caching layer
 \end{itemize}
 
-\subsection{การกำหนดขอบเขตและข้อกำหนด (Scope \& Requirements Definition)}
-\label{subsec:requirements-definition}
+ในส่วนของ Infrastructure ระบบถูก containerize ด้วย Docker และ deploy บน Proxmox VE พร้อม Cloudflare Tunnel เป็น layer กลางระหว่าง internet กับ backend server รองรับการขยายตัวเป็น Microservices ในอนาคต
 
-หลังจากเข้าใจปัญหาแล้ว ขั้นตอนนี้จะเป็นการกำหนดขอบเขตและข้อกำหนดที่ชัดเจน:
+%================ Section 3.2: Use Cases ==================
+\section{ผู้ใช้งานและ Use Case ของระบบ}
+\label{sec:use-cases}
+
+\noindent
+ระบบ GymMate มีผู้ใช้งานหลัก 3 กลุ่ม ได้แก่ Member, Trainer และ Admin
+
+\subsection*{Use Case หลักของ Member}
 \begin{itemize}
-    \item การระบุขอบเขตโซลูชัน (Solution Scope)
-    \item การจัดลำดับความสำคัญของปัญหา (Problem Prioritization)
-    \item การกำหนดข้อกำหนดซอฟต์แวร์ (Software Requirements)
-    \item การสร้าง Problem-to-Feature Mapping
+  \item สมัครสมาชิก / เข้าสู่ระบบ
+  \item เลือกและดำเนินการโปรแกรมออกกำลังกาย
+  \item บันทึกผลการออกกำลังกาย (Workout Log)
+  \item ใช้ฟังก์ชัน Flex Substitute เพื่อเปลี่ยนท่า
+  \item ดูแผนผังฟิตเนส (Floorplan) และค้นหาเครื่องออกกำลังกาย
+  \item ติดตามความก้าวหน้า (Progress \& Analytics)
+  \item ดูอันดับ Leaderboard
 \end{itemize}
+
+\subsection*{Use Case หลักของ Admin/Trainer}
+\begin{itemize}
+  \item จัดการข้อมูลเครื่องออกกำลังกายและตำแหน่งใน Floorplan
+  \item สร้างและแก้ไขโปรแกรมการออกกำลังกาย (Program Template)
+  \item มอบหมายโปรแกรมให้ผู้ใช้ (Assign Program)
+  \item จัดการข้อมูลท่าออกกำลังกาย (Exercise Library)
+  \item ติดตาม Progress ของ Member ที่อยู่ในความดูแล
+  \item จัดการสิทธิ์ผู้ใช้งาน (User Management)
+\end{itemize}
+
+%================ Section 3.3: User Flow ==================
+\section{User Flow}
+\label{sec:user-flow}
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.35\textwidth]{chapters/Images/Mapping.png}
-  \caption{แผนภาพแสดงProblem->Features: กรอบการออกแบบสำหรับ GymMate}
-  \label{fig:mapping}
+  \includegraphics[width=0.90\linewidth]{chapters/Images/UserFlow.png.png}
+  \caption{ภาพรวม User Flow ของระบบ GymMate ฝั่งผู้ใช้งาน (Member)}
+  \label{fig:user-flow}
 \end{figure}
 
-\subsection{การออกแบบประสบการณ์ผู้ใช้ (User Experience Design)}
-\label{subsec:ux-design}
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.90\linewidth]{chapters/Images/AdminFlow.png}
+  \caption{ภาพรวม User Flow ของระบบ GymMate ฝั่งผู้ดูแลระบบ (Admin/Trainer)}
+  \label{fig:admin-flow}
+\end{figure}
 
-ขั้นตอนการออกแบบประสบการณ์ผู้ใช้ประกอบด้วย:
+\subsection{Authentication Flow}
+\label{subsec:auth-flow}
+
+ผู้ใช้ทุกกลุ่มต้องผ่านขั้นตอน login โดยกรอก email และ password ระบบตรวจสอบด้วย bcrypt และออก JWT ผ่าน HTTP-only cookie เมื่อเข้าสู่ระบบสำเร็จ ระบบจะ redirect ไปยังหน้าหลักตาม role (Member → Home, Admin/Trainer → Dashboard)
+
+\subsection{Workout Plan Flow}
+\label{subsec:workout-flow}
+
+\begin{enumerate}
+  \item ผู้ใช้เลือกวันออกกำลังกายผ่าน Calendar ระบบตรวจสอบว่ามี Workout ที่ถูก schedule ไว้หรือไม่
+  \item ระหว่างการออกกำลังกาย ผู้ใช้ปรับน้ำหนักผ่าน Weight Picker และสามารถเปลี่ยนท่าผ่าน Flex Substitute Flow
+  \item เมื่อทำครบทุกท่า Slide to Confirm เพื่อยืนยัน ระบบบันทึก Workout Log และมอบ XP หากยกเลิกระบบบันทึกเป็น Missed Log
+\end{enumerate}
+
+\subsection{Flex Substitute Flow}
+\label{subsec:flex-flow}
+
+\begin{enumerate}
+  \item ผู้ใช้กดไอคอน Substitute บน Exercise Card ระบบแสดง FlexSub Modal พร้อมดึงรายการท่าทางเลือกจากเซิร์ฟเวอร์ โดยคำนวณด้วย Cosine Similarity
+  \item เมื่อผู้ใช้เลือกท่าทางเลือก ระบบแทนที่ท่าเดิมใน Exercise List ทันทีโดยไม่กระทบ flow หลัก
+\end{enumerate}
+
+\subsection{Progress และ History Flow}
+\label{subsec:progress-flow}
+
+ระบบบันทึกผลการออกกำลังกายอัตโนมัติลงใน Progress/History โดยแสดงในรูปแบบ Bar Chart (ความถี่) และ Donut Chart (สัดส่วนกล้ามเนื้อ) พร้อมรายละเอียดของแต่ละ Session
+
+\subsection{Floor Plan Flow}
+\label{subsec:floorplan-flow}
+
+\begin{enumerate}
+  \item ระบบดึงข้อมูลอุปกรณ์ทั้งหมดและแปลงตำแหน่งจาก cm เป็น pixel แล้ว render บน Interactive Canvas
+  \item ผู้ใช้สำรวจผ่าน Pinch Zoom และ Pan กรองอุปกรณ์ด้วย Search Bar หรือ Type Chip
+  \item กดเลือกอุปกรณ์เพื่อดูรายละเอียดและสถานะ (Available / Out-of-Order)
+\end{enumerate}
+
+\subsection{Leaderboard Flow}
+\label{subsec:leaderboard-flow}
+
+ผู้ใช้เลือกประเภทการจัดอันดับ (Volume, Streak, Program) และช่วงเวลา (Weekly, Monthly, All Time) ระบบแสดงอันดับ 1-3 ในรูปแบบ Podium และอันดับถัดไปในรูปแบบ List
+
+\subsection{Trainer Portal Flow}
+\label{subsec:trainer-flow}
+
+Trainer login เข้าสู่ Trainer Portal จัดการข้อมูลหลักของระบบ ได้แก่ Program Template, Exercise Library และ Equipment พร้อมกำหนด Program ให้ผู้ใช้ ระบบสร้างตารางออกกำลังกายใน Calendar อัตโนมัติ และ Trainer ติดตาม Progress ของ Member แบบ real-time
+
+%================ Section 3.4: Database Design ==================
+\section{การออกแบบฐานข้อมูล (ERD)}
+\label{sec:erd}
+
+\noindent
+ระบบ GymMate ใช้ PostgreSQL เป็น relational database หลัก \cite{postgres} โดยออกแบบ schema แบ่งออกเป็น 8 domain ตามหน้าที่ของข้อมูล
+
+\subsection{Users \& Authentication}
+ตาราง \texttt{users} เป็นศูนย์กลางของระบบ เก็บข้อมูลผู้ใช้ทุกประเภทในตารางเดียว (Member, Trainer, Admin) แยกบทบาทผ่าน \texttt{role} field และกำหนดสถานะบัญชีผ่าน \texttt{status} field โดยมีการอ้างอิงตัวเองผ่าน \texttt{trainer\_id} เพื่อเชื่อมความสัมพันธ์ Trainer-Member นอกจากนี้เก็บข้อมูลสุขภาพพื้นฐาน เช่น \texttt{height\_cm}, \texttt{fitness\_level} และ \texttt{fitness\_goal}
+
+\subsection{Exercise Library}
+Domain นี้ประกอบด้วย 6 ตารางที่ทำงานร่วมกัน
 \begin{itemize}
-    \item การกำหนด Use Cases หลัก (Core Use Cases Definition)
-    \item การออกแบบ User Flows และเส้นทางผู้ใช้ (User Flows \& Journey Design)
-    \item การสร้าง Wireframes และ Prototypes
-    \item การทดสอบความใช้งานได้ (Usability Testing)
+  \item \texttt{exercises} — เก็บข้อมูล exercise แต่ละท่า เช่น movement\_type, movement\_pattern และระดับความยาก
+  \item \texttt{exercise\_muscles} — junction table เชื่อม exercise กับกล้ามเนื้อ มี \texttt{involvement\_type} (primary/secondary/stabilizer) และ \texttt{activation\_percentage} ใช้สร้าง muscle activation vector สำหรับ Flex Substitute
+  \item \texttt{computed\_exercise\_substitutes} — เก็บผลลัพธ์ Cosine Similarity ที่คำนวณไว้ล่วงหน้าแบบ bidirectional พร้อม UNIQUE constraint บน \texttt{(original\_exercise\_id, substitute\_exercise\_id)}
 \end{itemize}
+
+\subsection{Programs \& Sessions}
+\begin{itemize}
+  \item \texttt{programs} — มี flag \texttt{is\_template} แยก Preset Program จาก Assigned Program
+  \item \texttt{program\_sessions} — กำหนด session รายวัน ระบุด้วย \texttt{day\_number} และ \texttt{workout\_split} (Push/Pull/Legs)
+  \item \texttt{session\_exercises} — junction table เชื่อม session กับ exercise พร้อม \texttt{sets}, \texttt{reps}, \texttt{weight} และ \texttt{order\_sequence}
+\end{itemize}
+
+\subsection{User Programs \& Scheduling (Snapshot Pattern)}
+Domain นี้ใช้ \textbf{Snapshot Pattern} เป็น design หลัก เพื่อให้การแก้ไข Program template ไม่กระทบต่อ workout ที่ถูก schedule ไปแล้ว
+\begin{itemize}
+  \item \texttt{user\_programs} — instance ของ program ที่ assign ให้ผู้ใช้แต่ละคน ติดตาม \texttt{current\_week}, \texttt{current\_day} และ \texttt{status}
+  \item \texttt{scheduled\_workouts} — สร้างอัตโนมัติเมื่อ assign program แต่ละแถวแทน 1 session ในปฏิทิน
+  \item \texttt{scheduled\_workout\_exercises} — snapshot copy ของ \texttt{session\_exercises} ณ เวลาสร้าง ทำให้แผนการออกกำลังกายไม่เปลี่ยนแม้ Trainer แก้ไข template
+\end{itemize}
+
+\subsection{Workout Logging}
+\begin{itemize}
+  \item \texttt{workout\_logs} — บันทึกผลการออกกำลังกายจริง เชื่อมกับ \texttt{scheduled\_workouts} แบบ optional รองรับทั้ง planned และ free workout
+  \item \texttt{log\_exercises} — เก็บผลจริงในแต่ละท่า เช่น \texttt{sets\_completed}, \texttt{reps\_completed}, \texttt{weight\_used} และ \texttt{rpe\_rating}
+\end{itemize}
+
+\subsection{Floorplan}
+\begin{itemize}
+  \item \texttt{floorplans} — กำหนด canvas ของแผนผังยิม มี \texttt{canvas\_width}, \texttt{canvas\_height} และ \texttt{grid\_size}
+  \item \texttt{equipment\_instances} — เชื่อม equipment กับ floorplan พร้อมตำแหน่งจริง (\texttt{position\_x}, \texttt{position\_y}, \texttt{rotation}) และขนาด
+  \item \texttt{floorplan\_walls} — เก็บข้อมูลผนังและโครงสร้างยิมผ่าน \texttt{start\_x}, \texttt{start\_y}, \texttt{end\_x}, \texttt{end\_y}
+\end{itemize}
+
+\subsection{Gamification}
+\begin{itemize}
+  \item \texttt{user\_gamification\_profiles} — เก็บสถานะ gamification ปัจจุบัน เช่น \texttt{total\_xp}, \texttt{current\_level}, \texttt{current\_streak}, \texttt{longest\_streak}
+  \item \texttt{badges} — กำหนด badge แต่ละประเภทพร้อม \texttt{trigger\_type}, \texttt{trigger\_value} และ \texttt{xp\_reward}
+  \item \texttt{xp\_events} — บันทึกประวัติการรับ XP ทุกรายการ
+\end{itemize}
+
+\subsection{Tracking}
+\begin{itemize}
+  \item \texttt{muscle\_trackings} — บันทึก \texttt{weekly\_volume} และ \texttt{recovery\_status} รายสัปดาห์
+  \item \texttt{user\_weight\_logs} — บันทึกน้ำหนักตัวผู้ใช้พร้อม timestamp
+\end{itemize}
+
 \vspace{1em}
+\noindent\textbf{Key Design Decisions:}
+
+\begin{enumerate}
+  \item \textbf{Snapshot Pattern} — ป้องกันการแก้ไข template กระทบ scheduled workout
+  \item \textbf{Template vs Instance} — \texttt{programs.is\_template} แยก Preset Program จาก Assigned Program
+  \item \textbf{Bidirectional Substitutes} — query หา substitute โดยใช้เพียง \texttt{WHERE original\_exercise\_id = ?}
+  \item \textbf{Soft Delete} — ทุกตารางใช้ \texttt{deleted\_at} (GORM convention) แทนการลบจริง
+\end{enumerate}
+
+%================ Section 3.5: API Design ==================
+\section{การออกแบบ API และระบบ Authentication}
+\label{sec:api-design}
+
+\subsection{การออกแบบ RESTful API}
+
+GymMate ออกแบบ API ในรูปแบบ RESTful โดยกำหนดหลักการดังนี้
+
+\begin{itemize}
+  \item \textbf{Versioning} — endpoint ทุกตัวขึ้นต้นด้วย \texttt{/api/v1/}
+  \item \textbf{Resource Naming} — ใช้ noun พหูพจน์ เช่น \texttt{/exercises}, \texttt{/programs}, \texttt{/users}
+  \item \textbf{API Documentation} — Swagger UI ที่ port 8081 สร้างจาก \texttt{openapi.yaml}
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Method} & \textbf{การใช้งาน} & \textbf{ตัวอย่าง} \\
+\midrule
+GET    & ดึงข้อมูล           & \texttt{GET /api/v1/exercises} \\
+POST   & สร้างข้อมูลใหม่     & \texttt{POST /api/v1/exercises} \\
+PUT    & แก้ไขข้อมูลทั้งหมด  & \texttt{PUT /api/v1/programs/\{id\}} \\
+PATCH  & แก้ไขข้อมูลบางส่วน  & \texttt{PATCH /api/v1/users/\{id\}} \\
+DELETE & ลบข้อมูล           & \texttt{DELETE /api/v1/equipment/\{id\}} \\
+\bottomrule
+\end{tabular}
+\caption{HTTP Methods ที่ใช้ใน GymMate API}
+\label{tab:http-methods}
+\end{table}
+
+\subsection{ระบบ Authentication}
+
+GymMate ใช้ JWT HS256 เป็น mechanism หลักสำหรับยืนยันตัวตน มีขั้นตอนดังนี้
+
+\begin{enumerate}
+  \item ผู้ใช้ส่ง \texttt{email} และ \texttt{password} ผ่าน \texttt{POST /api/v1/auth/login}
+  \item Server ตรวจสอบ email และเปรียบเทียบ password ด้วย bcrypt
+  \item Server สร้าง JWT ลงนามด้วย HS256 โดย payload บรรจุ \texttt{user\_id}, \texttt{role} และ expiration time
+  \item Server ส่ง JWT กลับในรูป HTTP-only cookie ป้องกัน XSS
+  \item ใน request ถัดไป client แนบ cookie อัตโนมัติ server validate ลายเซ็นและดึง \texttt{user\_id} และ \texttt{role} โดยไม่ต้อง query database
+\end{enumerate}
+
+\subsection{ระบบ Authorization (RBAC)}
+
+GymMate ใช้ \textbf{Role-Based Access Control (RBAC)} โดยแบ่ง role ออกเป็น 3 ระดับ ตรวจสอบใน Middleware layer ของ Gin ก่อนที่ request จะถึง handler จริง
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Role} & \textbf{สิทธิ์การเข้าถึง} \\
+\midrule
+Member  & ข้อมูลและฟีเจอร์ของตัวเองเท่านั้น \\
+Trainer & จัดการ program และติดตาม member ในความดูแล, แก้ไข exercise library \\
+Admin   & เข้าถึงได้ทุกส่วนของระบบ รวมถึง CMS Dashboard และ user management \\
+\bottomrule
+\end{tabular}
+\caption{RBAC Role ในระบบ GymMate}
+\label{tab:rbac}
+\end{table}
+
+%================ Section 3.6: Feature Design ==================
+\section{การออกแบบและพัฒนาฟีเจอร์หลัก}
+\label{sec:feature-design}
+
+\subsection{Member UI (Mobile App)}
+
+Mobile Application พัฒนาด้วย React Native + Expo ออกแบบสำหรับผู้ใช้บริการฟิตเนส ประกอบด้วยหน้าจอหลักดังนี้
+
+\begin{itemize}
+  \item \textbf{Home} — แสดงสถิติ Level, XP, Streak และ Badge System กระตุ้นแรงจูงใจ
+  \item \textbf{Search Exercises} — ค้นหาท่าออกกำลังกายด้วย Search Bar และ Filter Chip (กล้ามเนื้อ) พร้อม Debounce 300 ms แสดงรายละเอียดผ่าน Detail Modal (Muscle Activation, อุปกรณ์ที่ใช้)
+  \item \textbf{Workout Plan} — Calendar เลือกวัน, Exercise List พร้อม Weight Picker, ฟีเจอร์ Flex Substitute และ Slide to Confirm
+  \item \textbf{Flex Substitute} — แสดงท่าทดแทนพร้อมค่า Similarity Score เมื่อเลือกแล้วอัปเดต Exercise List ทันที
+  \item \textbf{Floor Plan} — Interactive Canvas แสดงตำแหน่งเครื่อง รองรับ Pinch Zoom และ Pan กรองด้วย Search Bar/Type Chip แสดงสถานะ Available/Out-of-Order
+  \item \textbf{Progress} — Bar Chart (ความถี่) และ Donut Chart (สัดส่วนกล้ามเนื้อ) พร้อมรายละเอียด Session
+  \item \textbf{Leaderboard} — จัดอันดับ Volume/Streak/Program แบบ Weekly/Monthly/All Time แสดงผล Podium อันดับ 1-3
+\end{itemize}
 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.35\textwidth]{chapters/Images/Floorplan.png}
-  \caption{Simplified Floor Plan of Gym Layout in GymMate}
-  \label{fig:floorplan}
+  \caption{ตัวอย่างหน้า Floor Plan ของ GymMate แสดงตำแหน่งอุปกรณ์ภายในยิม}
+  \label{fig:floorplan-ui}
 \end{figure}
 
-\subsection{การออกแบบระบบและข้อมูล (System \& Data Design)}
-\label{subsec:system-design}
+\subsection{Admin UI (Web Application)}
 
-การออกแบบด้านเทคนิคของระบบประกอบด้วย:
+Web CMS Dashboard พัฒนาด้วย Vite + React + Tailwind CSS + Framer Motion ออกแบบสำหรับ desktop เน้น information density รองรับ workflow ที่ซับซ้อน ประกอบด้วยหน้าจอหลักดังนี้
+
 \begin{itemize}
-    \item การออกแบบ Domain Model
-    \item การออกแบบโครงสร้างข้อมูล (Data Structure Design)
-    \item การออกแบบสถาปัตยกรรมซอฟต์แวร์ (Software Architecture Design)
-    \item การออกแบบ API (API Design)
+  \item \textbf{Dashboard Overview} — สรุปสถิติการใช้งาน จำนวนผู้ใช้ โปรแกรม และสถานะระบบโดยรวม
+  \item \textbf{Floorplan Editor} — จัดการผังยิมแบบ Interactive Admin ลาก-วาง เพิ่ม แก้ไข หรือลบตำแหน่งเครื่องออกกำลังกาย พร้อมโหมดแก้ไข (Edit Mode) และการสร้าง Equipment Instance
+  \item \textbf{Program Builder} — สร้าง Program Template กำหนดท่า จำนวนเซต จำนวนครั้ง และ Assign Program ให้ผู้ใช้
+  \item \textbf{Exercise Management} — เพิ่ม/แก้ไข exercise พร้อม upload รูปภาพ/วิดีโอ และแสดงผลการคำนวณ Cosine Similarity
+  \item \textbf{Muscle Atlas} — แสดงข้อมูลกล้ามเนื้อในร่างกาย ช่วยให้เข้าใจผลต่อกล้ามเนื้อแต่ละส่วน
+  \item \textbf{User Management} — เพิ่ม/แก้ไข/ลบผู้ใช้งาน กำหนด Role (Admin, Trainer, Member)
 \end{itemize}
 
-\subsection{การออกแบบความปลอดภัยและความเป็นส่วนตัว (Security \& Privacy by Design)}
-\label{subsec:security-design}
+\subsection{Trainer UI (Web Application)}
 
-การออกแบบด้วยแนวคิดความปลอดภัยและความเป็นส่วนตัวตั้งแต่เริ่มต้น:
 \begin{itemize}
-    \item การวิเคราะห์ความเสี่ยงด้านความปลอดภัย (Security Risk Analysis)
-    \item การออกแบบตามหลัก PDPA (PDPA Compliance Design)
-    \item การกำหนดนโยบายการเข้าถึงข้อมูล (Data Access Policies)
-    \item การป้องกันข้อมูลส่วนบุคคล (Personal Data Protection)
+  \item \textbf{Trainer Dashboard} — แสดงภาพรวม Member ที่อยู่ในความดูแล รายชื่อสมาชิก จำนวนครั้งออกกำลังกายล่าสุด
+  \item \textbf{Member Detail} — ข้อมูลเฉพาะบุคคล เช่น ระดับการฝึก โปรแกรมที่ assign และสถิติล่าสุด
+  \item \textbf{Daily Program Edit} — แก้ไขโปรแกรมรายวันให้ลูกเทรน
+  \item \textbf{Workout History \& Progress} — ติดตาม log และ progress ของ Member แต่ละคน
 \end{itemize}
 
-\subsection{การออกแบบโครงสร้างพื้นฐานและการส่งมอบ (Infrastructure \& Delivery Design)}
-\label{subsec:infrastructure-design}
+%================ Section 3.7: UI/UX Design ==================
+\section{การออกแบบ UI/UX}
+\label{sec:ui-ux}
 
-การออกแบบสภาพแวดล้อมและกระบวนการส่งมอบ:
-\begin{itemize}
-    \item การออกแบบสถาปัตยกรรมระบบ (System Architecture Design)
-    \item การวางแผนโครงสร้างพื้นฐาน (Infrastructure Planning)
-    \item การออกแบบ Pipeline CI/CD (CI/CD Pipeline Design)
-    \item กลยุทธ์การ deployment (Deployment Strategies)
-\end{itemize}
+\noindent
+การออกแบบ UI/UX ของ GymMate ยึดหลักการดังนี้
 
-\subsection{การทดสอบและประกันคุณภาพ (Testing \& Quality Assurance)}
-\label{subsec:testing-qa}
+\subsection*{Mobile App (Member)}
+ออกแบบตาม \textbf{Mobile-first} เน้น simplicity และ intuitive interaction รองรับการใช้งานด้วยมือเดียว ใช้สี primary และ accent สอดคล้องกับธีม fitness/energy พร้อม animation เพื่อ feedback ที่ชัดเจน
 
-ขั้นตอนสุดท้ายก่อนการส่งมอบ:
-\begin{itemize}
-    \item การวางแผนการทดสอบที่ขับเคลื่อนด้วยความปลอดภัย (Security-Driven Test Planning)
-    \item การเขียน Test Cases
-    \item การทดสอบการแทรกซึมและความปลอดภัย (Penetration \& Security Testing)
-    \item การตรวจสอบคุณภาพก่อนส่งมอบ (Pre-Delivery Quality Verification)
-\end{itemize}
+\subsection*{Web CMS Dashboard (Admin \& Trainer)}
+ออกแบบสำหรับ desktop browser เน้น \textbf{information density} แสดงข้อมูลได้มากในหน้าเดียว ใช้ Tailwind CSS สำหรับ utility-first styling และ Framer Motion สำหรับ transition เพื่อประสบการณ์ที่ลื่นไหล
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.50\textwidth]{chapters/Images/Mapping.png}
+  \caption{Problem-to-Feature Mapping แสดงความสัมพันธ์ระหว่างปัญหาและฟีเจอร์ของ GymMate}
+  \label{fig:mapping}
+\end{figure}
