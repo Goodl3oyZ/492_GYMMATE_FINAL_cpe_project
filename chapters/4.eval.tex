@@ -1,0 +1,67 @@
+\chapter{\ifenglish System Evaluation\else การประเมินระบบ\fi}
+
+\section{การทำงานของระบบ}
+
+การประเมินระบบ \textit{GymMate} ได้ออกแบบเพื่อสะท้อนความสามารถของระบบซอฟต์แวร์ ทั้งด้านความถูกต้อง ประสิทธิภาพ และประสบการณ์ผู้ใช้ โดยอ้างอิงเกณฑ์มาตรฐานด้านวิศวกรรมซอฟต์แวร์ที่สำคัญ ได้แก่ {ความถูกต้อง (Correctness)} {ความเสถียร (Reliability)} {ความปลอดภัย (Security)} และ {ความง่ายต่อการใช้งาน (Usability)}
+
+\subsection{สิทธิ์และการเข้าถึง (Permission \& Access Control Test)}
+เพื่อให้มั่นใจว่าการเข้าถึงข้อมูลและฟังก์ชันต่าง ๆ เป็นไปตามสิทธิ์ที่กำหนด ได้มีการออกแบบ \textit{Test Matrix} สำหรับระบบปฏิบัติการและเวอร์ชันที่หลากหลาย ตัวอย่างเช่น
+\begin{itemize}
+  \item การติดตั้งครั้งแรก (First Install)
+  \item การปฏิเสธสิทธิ์การเข้าถึงกล้องหรือการแจ้งเตือน
+  \item การเปลี่ยนแปลงสิทธิ์ระหว่างการใช้งาน (Runtime Permission Change)
+  \item ความยินยอมในการประมวลผลข้อมูลสุขภาพ (Health Consent)
+\end{itemize}
+การประเมินนี้ทำให้มั่นใจได้ว่าระบบสามารถทำงานได้ถูกต้องและปลอดภัยภายใต้เงื่อนไขสิทธิ์ที่แตกต่างกัน
+
+\subsection{ความถูกต้องของการส่งข้อมูล (Data Transmission Accuracy)}
+เพื่อรับรองความถูกต้องของข้อมูลที่ถูกส่งจากผู้ใช้ไปยังระบบ ได้มีการออกแบบการประเมินในประเด็นสำคัญ ได้แก่
+\begin{itemize}
+  \item \textbf{Completeness \& No-Loss:} ข้อมูลที่ส่งต้องครบถ้วนและไม่สูญหาย
+  \item \textbf{Idempotency:} การส่งข้อมูลซ้ำจากการ Retry ไม่ควรสร้างข้อมูลซ้ำในฐานข้อมูล
+  \item \textbf{Data Validation:} ตรวจสอบให้ตรงตาม Schema และ Constraints เช่น ค่า Reps, Weight, RPE ต้องเป็นไปตามโดเมนที่กำหนด
+  \item \textbf{Event-driven Architecture:} เมื่อเกิดเหตุการณ์ (เช่น \textit{Workout Logged}) ต้องมีหลายบริการ (Consumer) ประมวลผลได้สำเร็จ เช่น \textit{Analytics, Gamification, Notification}
+\end{itemize}
+
+\subsection{ประสิทธิภาพระบบ (System Performance)}
+\begin{itemize}
+  \item วัด Latency และ Throughput ของ API ที่สำคัญ (เช่น \texttt{POST /workouts/logs})
+  \item วัด Consumer Lag ของ Message Queue
+  \item ใช้เกณฑ์อ้างอิง เช่น ค่า Latency p90 ต้องไม่เกิน 200\,ms ภายใต้โหลดปกติ
+\end{itemize}
+
+\subsection{ประสบการณ์ผู้ใช้ (User Experience)}
+\begin{itemize}
+  \item ความง่ายในการนำทาง (Navigation)
+  \item ความชัดเจนของข้อความแจ้งเตือนและการขอสิทธิ์
+  \item ความเหมาะสมของอินเทอร์เฟซในสถานการณ์จริง
+  \item ความมั่นใจในการใช้งานระบบ
+\end{itemize}
+
+\section{สิ่งที่คาดหวังในอนาคต (Future Expectations)}
+
+\subsection{การปรับปรุงระบบ Flex Substitute}
+\begin{itemize}
+  \item ปรับปรุงอัลกอริทึมให้สามารถแนะนำท่าทางทดแทนได้แม่นยำขึ้น โดยอิงทั้ง \textit{กล้ามเนื้อหลัก กล้ามเนื้อรอง และระดับความยาก}
+  \item พัฒนาให้รองรับ \textit{การปรับตามบุคคล (Personalization)} เช่น อิงจากประวัติการฝึก ความชอบ หรืออุปกรณ์ที่มีอยู่จริงในยิม
+\end{itemize}
+
+\subsection{การยกระดับระบบ Gamification}
+\begin{itemize}
+  \item ปัจจุบันรองรับเพียง \textit{Badge, Streak และ Leaderboard}
+  \item คาดหวังว่าจะพัฒนาไปสู่ \textit{Challenge ระหว่างผู้ใช้ (Individual Challenge)} และ \textit{กิจกรรมกลุ่มภายในยิม (Group Challenge)} เพื่อสร้างแรงจูงใจและเพิ่มการมีส่วนร่วมของผู้ใช้
+\end{itemize}
+
+\subsection{การพัฒนา CMS Dashboard สำหรับผู้ดูแล (Admin Panel)}
+\begin{itemize}
+  \item เพิ่มฟีเจอร์ \textit{Machine Management} โดยแสดงข้อมูลเครื่องเล่นผ่าน \textit{Floor Plan} แบบ Interactive
+  \item คาดหวังว่าในอนาคต ผู้ดูแลสามารถ \textit{ย้ายตำแหน่งเครื่องเล่นใน Floor Plan เสมือนจริง} เพื่อสะท้อนการเปลี่ยนแปลงจริงของพื้นที่ยิม
+  \item รองรับการจัดการสถานะเครื่องเล่น เช่น พร้อมใช้งาน/ อยู่ระหว่างซ่อมบำรุง เพื่อให้การบริหารจัดการเป็นระบบมากขึ้น
+\end{itemize}
+
+\subsection{การปรับปรุงประสบการณ์ผู้ใช้ (User Experience Enhancements)}
+\begin{itemize}
+  \item เพิ่ม \textit{Onboarding Tutorial} สำหรับผู้ใช้ใหม่ เพื่อช่วยให้เข้าใจการทำงานของระบบได้รวดเร็วขึ้น
+  \item เพิ่ม \textit{Feedback Mechanism} เช่น ปุ่มรายงานปัญหา หรือช่องทางเสนอแนะในแอปพลิเคชัน
+
+\end{itemize}

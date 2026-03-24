@@ -1,0 +1,153 @@
+%============== ภาคผนวก ก ==============
+\chapter{\ifenglish Appendix \thechapter: Research Instruments \& Supplemental Data\else ภาคผนวก \thechapter: เครื่องมือวิจัยและข้อมูลประกอบ\fi}
+\label{app:first}
+
+\section{\ifenglish Scope and Purpose\else ขอบเขตและวัตถุประสงค์\fi}
+ภาคผนวกนี้รวบรวมเครื่องมือเก็บข้อมูล ตัวอย่างคำตอบ (ปกปิดข้อมูลส่วนบุคคล) และสิ่งประกอบการวิเคราะห์สำหรับโครงการ \textit{GymMate} เพื่อให้ตรวจสอบย้อนกลับได้ตามหลักวิชาการ
+
+\section{\ifenglish Instruments\else เครื่องมือเก็บข้อมูล\fi}
+\subsection{\ifenglish Semi-structured Interview Guide\else แนวคำถามสัมภาษณ์กึ่งโครงสร้าง\fi}
+\begin{itemize}
+  \item \textbf{บริบทการออกกำลังกาย}: ความถี่ สถานที่ อุปกรณ์ที่ใช้
+  \item \textbf{เป้าหมาย/อุปสรรค}: เป้าหมายหลัก, สิ่งที่ทำให้หยุด/ขาดตอน
+  \item \textbf{ประสบการณ์กับแอพ}: ฟีเจอร์ที่ชอบ/ไม่ชอบ, จุดที่สับสน
+  \item \textbf{ความคาดหวังต่อ GymMate}: การแนะนำท่าทดแทน (Flex Substitute), การวิเคราะห์ความก้าวหน้า, เกมมิฟิเคชัน
+\end{itemize}
+
+\subsection{\ifenglish Questionnaire (excerpt)\else แบบสอบถาม (บางส่วน)\fi}
+\begin{itemize}
+  \item ระดับประสบการณ์การออกกำลังกาย: Beginner/Intermediate/Advanced
+  \item เป้าหมายหลัก: ลดไขมัน/เพิ่มกล้ามเนื้อ/ฟิตเนสทั่วไป
+  \item อุปสรรคสำคัญ: เวลา/สถานที่/แรงจูงใจ/อุปกรณ์
+  \item ความถี่ต่อสัปดาห์ (ครั้ง): 0–1, 2–3, 4–5, $\ge$6
+\end{itemize}
+
+\subsection{\ifenglish Consent (PDPA) summary\else สรุปแบบยินยอม (PDPA)\fi}
+\begin{itemize}
+  \item วัตถุประสงค์และขอบเขตข้อมูล, การปกปิดตัวตน (pseudonymization)
+  \item สิทธิในการเข้าถึง/แก้ไข/ถอนความยินยอม
+  \item ช่องทางติดต่อผู้ควบคุมข้อมูล
+\end{itemize}
+
+\section{\ifenglish Anonymized Samples\else ตัวอย่างคำตอบแบบไม่ระบุตัวตน\fi}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{รหัสผู้ให้ข้อมูล} & \textbf{เป้าหมายหลัก} & \textbf{อุปสรรคสำคัญ} \\
+\midrule
+P01 & ลดไขมัน & เวลาไม่แน่นอน \\
+P02 & เพิ่มกล้ามเนื้อ & อุปกรณ์ไม่ครบ \\
+P03 & ฟิตเนสทั่วไป & ขาดแรงจูงใจ \\
+\bottomrule
+\end{tabular}
+\caption{ตัวอย่างข้อมูลเชิงย่อหลังปกปิดข้อมูลส่วนบุคคล}
+\label{tab:anon-samples}
+\end{table}
+
+\section{\ifenglish Additional Artifacts\else สิ่งประกอบเพิ่มเติม\fi}
+\begin{itemize}
+  \item User/Admin Flow (ฉบับเต็ม) — ดูรูป \ref{fig:userflow} และ \ref{fig:adminflow}
+  \item Data Dictionary (ฉบับเต็ม) — ดูตาราง \ref{tab:data-dict-app}
+\end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \fbox{\parbox{0.9\linewidth}{\centering \vspace{2em}
+  \textit{ใส่ภาพ User Flow ที่ส่งออกจาก eraser.io/mermaid ที่นี่ (PNG/PDF)}\vspace{2em}}}
+  \caption{แผนภาพ User Flow (ตัวอย่าง)}
+  \label{fig:userflow}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \fbox{\parbox{0.9\linewidth}{\centering \vspace{2em}
+  \textit{ใส่ภาพ Admin Flow ที่ส่งออกจาก eraser.io/mermaid ที่นี่ (PNG/PDF)}\vspace{2em}}}
+  \caption{แผนภาพ Admin Flow (ตัวอย่าง)}
+  \label{fig:adminflow}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{ตาราง.ฟิลด์} & \textbf{ชนิดข้อมูล} & \textbf{คีย์/ดัชนี} & \textbf{คำอธิบาย} \\
+\midrule
+user.id & UUID & PK, index & รหัสผู้ใช้ \\
+user.email & text & unique index & อีเมล (ล็อกอิน) \\
+workout.user\_id & UUID & FK(user.id), index & เจ้าของบันทึก \\
+workout.started\_at & timestamp & index & เวลาเริ่มต้นเซสชัน \\
+\bottomrule
+\end{tabular}
+\caption{ตัวอย่าง Data Dictionary (ย่อ)}
+\label{tab:data-dict-app}
+\end{table}
+
+%============== ภาคผนวก ข ==============
+\chapter{\ifenglish Preliminary Design \& Project Plan (CPE491)\else โครงร่างระบบเบื้องต้นและแผนโครงการ (491)\fi}
+\label{app:prelim-plan}
+
+\section{\ifenglish Problem, Objectives, and Scope\else ปัญหา วัตถุประสงค์ และขอบเขต\fi}
+สรุปปัญหาหลักที่พบจากการสำรวจ (interview/questionnaire) เป้าหมายของระบบ และขอบเขตที่ทำใน 491
+\begin{itemize}
+  \item \textbf{ปัญหา/ช่องว่าง (Gap)}: สรุป pain points หลักจากผู้ใช้/ตลาด
+  \item \textbf{วัตถุประสงค์โครงการ}: ระบุเชิงวัดผลเท่าที่เป็นไปได้ (เช่น \%adherence, \%สำเร็จ onboarding)
+  \item \textbf{ขอบเขต 491}: ผลงานที่ต้องส่งในเทอมนี้ (เอกสาร/แบบจำลอง/PoC เล็กน้อยถ้ามี)
+\end{itemize}
+
+\section{\ifenglish Stakeholder Requirements (Extract)\else ข้อกำหนดจากผู้มีส่วนได้ส่วนเสีย (สรุป)\fi}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Stakeholder} & \textbf{Need/Problem} & \textbf{Feature (Proposed)} & \textbf{Priority} \\
+\midrule
+User   & ขาดแรงจูงใจ & Gamification/Badges & สูง \\
+Trainer& โปรแกรมไม่ยืดหยุ่น & Flex Substitute & กลาง \\
+Admin  & จัดการคอนเทนต์ยาก & CMS/Versioning & กลาง \\
+Owner  & ต้องการตัวชี้วัด & Analytics/Reports & สูง \\
+\bottomrule
+\end{tabular}
+\caption{สรุปข้อกำหนดเชิงสังเคราะห์จากการสำรวจ}
+\label{tab:stake-req}
+\end{table}
+
+\section{\ifenglish Preliminary System Concept\else แนวคิดระบบเบื้องต้น\fi}
+\begin{itemize}
+  \item \textbf{Core Use Cases (ย่อ)}: สมัคร/เข้าสู่ระบบ, เลือกโปรแกรม, ติดตามการฝึก, Flex Substitute, ดูสถิติ
+  \item \textbf{Domain/ข้อมูลสำคัญ}: user, program, workout, exercise, log, badge
+  \item \textbf{ภาพรวมสถาปัตยกรรม (เชิงแนวคิด)}: Client (Web/Mobile) $\leftrightarrow$ API $\leftrightarrow$ Database \& Object Storage
+\end{itemize}
+
+\section{\ifenglish Evaluation Plan (for 492)\else แผนประเมินผล (สำหรับเทอมถัดไป)\fi}
+ระบุว่าจะวัดผลอย่างไรเมื่อพัฒนา (เช่น usability, task success, time-on-task, adherence)
+\begin{itemize}
+  \item \textbf{ตัวชี้วัดเบื้องต้น}: SUS score, อัตราการสำเร็จงานหลัก, เวลาที่ใช้, ความถี่ใช้งาน/สัปดาห์
+  \item \textbf{กลุ่มทดลองเป้า}: ผู้ใช้ใหม่ X–Y คน, เกณฑ์คัดเลือก
+\end{itemize}
+
+\section{\ifenglish Project Plan (CPE491)\else แผนโครงการ (491)\fi}
+\subsection*{Milestones \& Deliverables}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{สัปดาห์} & \textbf{หมุดหมาย} & \textbf{สิ่งส่งมอบ} \\
+\midrule
+1–2 & วางแผน/ทบทวนวรรณกรรม & บทที่ 2 (บางส่วน), แผนเก็บข้อมูล \\
+3–5 & เก็บข้อมูล (สัมภาษณ์/แบบสอบถาม) & ชุดข้อมูลนิรนาม, เครื่องมือวิจัย \\
+6–8 & วิเคราะห์/สังเคราะห์ความต้องการ & ตาราง Stakeholder Req., Use Cases \\
+9–10 & แนวคิดระบบ/แบบข้อมูลเบื้องต้น & สถาปัตยกรรมแนวคิด, ER (ย่อ) \\
+11–12 & เขียนรายงานฉบับสมบูรณ์ & ฉบับร่าง–ฉบับส่ง \\
+\bottomrule
+\end{tabular}
+\caption{โรดแมปและสิ่งส่งมอบสำหรับรายงาน 491}
+\label{tab:roadmap-491}
+\end{table}
+
+\subsection*{Risk \& Ethics (PDPA)}
+\begin{itemize}
+  \item \textbf{จริยธรรม/PDPA}: การขอความยินยอม, การปกปิดตัวตน, การเก็บรักษาข้อมูล
+  \item \textbf{ความเสี่ยง}: ล่าช้าด้านการเข้าถึงกลุ่มตัวอย่าง, คุณภาพข้อมูลไม่พอ—แนวทางบรรเทา
+\end{itemize}
+
